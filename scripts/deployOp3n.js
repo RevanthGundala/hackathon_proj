@@ -1,4 +1,5 @@
 const { ethers } = require("hardhat");
+const fs = require("fs");
 
 async function main() {
   const contractFactory = await ethers.getContractFactory("Op3n");
@@ -6,6 +7,12 @@ async function main() {
   await contract.deployed();
 
   console.log(`Deployed to address: ${contract.address}`);
+
+  const nft = await contract.getNFT();
+  console.log(`NFT address at ${nft}`);
+  const message = JSON.stringify({ Op3n: contract.address, NFT: nft }, null, 2);
+
+  fs.writeFileSync("./contracts.json", message);
 }
 
 main()

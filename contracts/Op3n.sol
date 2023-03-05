@@ -7,29 +7,29 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "./NFT.sol";
+import "hardhat/console.sol";
 
 contract Op3n is Ownable {
     mapping(address => uint[]) private userToTokenIds;
 
-    event newMessage(address _user, uint _tokenId, uint time);
+    event newMessage(address from, address to, uint _tokenId, uint time);
     NFT private nft;
+    uint private tokenId;
 
     constructor() {
         nft = new NFT();
     }
 
-    function sendMessage(
-        address _user,
-        string memory uri
-    ) external returns (uint256) {
-        uint _tokenId = nft.safeMint(_user, uri);
-        userToTokenIds[_user].push(_tokenId);
-        emit newMessage(_user, _tokenId, block.timestamp);
-        return _tokenId;
+    function sendMessage(address to, string memory uri) public {
+        nft.safeMint(to, uri);
+        tokenId = nft.getTokenId();
+        console.log("tokenId", tokenId);
+        userToTokenIds[to].push(tokenId);
+        emit newMessage(msg.sender, to, tokenId, block.timestamp);
     }
 
-    function getInbox(address _addr) external view returns (uint[] memory) {
-        return userToTokenIds[_addr];
+    function getInbox(address _user) external view returns (uint[] memory) {
+        return userToTokenIds[_user];
     }
 
     function getNFT() external view returns (NFT) {
